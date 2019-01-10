@@ -357,7 +357,7 @@ def get_mmd_snl(exp_desc, seed):
     return all_errs
 
 
-def plot_results(seed):
+def plot_results():
 
     """
     # SMC
@@ -380,55 +380,78 @@ def plot_results(seed):
         all_n_sims_nde.append(exp_desc.inf.n_samples)
     """
 
+    #print 'seeds: ' + str(seeds)
+
     fig, ax = plt.subplots(1, 1)
+    seeds = np.arange(42, 52)
+    for seed in seeds:
 
-    all_mmd_ppr = None
-    all_n_sims_ppr = None
+        all_mmd_ppr = None
+        all_n_sims_ppr = None
 
-    all_mmd_snp = None
-    all_n_sims_snp = None
+        all_mmd_snp = None
+        all_n_sims_snp = None
 
-    all_mmd_snl = None
-    all_n_sims_snl = None
+        all_mmd_snl = None
+        all_n_sims_snl = None
 
-    for exp_desc in ed.parse(util.io.load_txt('exps/gauss_seq.txt')):
+        for exp_desc in ed.parse(util.io.load_txt('exps/gauss_seq.txt')):
 
-        # Post Prop
-        if isinstance(exp_desc.inf, ed.PostProp_Descriptor):
-            all_prop_mmd, post_mmd = get_mmd_postprop(exp_desc, seed)
-            all_mmd_ppr = all_prop_mmd + [post_mmd]
-            all_n_sims_ppr = [(i + 1) * exp_desc.inf.n_samples_p for i in xrange(len(all_prop_mmd))]
-            all_n_sims_ppr.append(all_n_sims_ppr[-1] + exp_desc.inf.n_samples_f)
+            # Post Prop
+            if isinstance(exp_desc.inf, ed.PostProp_Descriptor):
+                all_prop_mmd, post_mmd = get_mmd_postprop(exp_desc, seed)
+                all_mmd_ppr = all_prop_mmd + [post_mmd]
+                all_n_sims_ppr = [(i + 1) * exp_desc.inf.n_samples_p for i in xrange(len(all_prop_mmd))]
+                all_n_sims_ppr.append(all_n_sims_ppr[-1] + exp_desc.inf.n_samples_f)
 
-        # SNPE
-        if isinstance(exp_desc.inf, ed.SNPE_MDN_Descriptor):
-            all_mmd_snp = get_mmd_snpe(exp_desc, seed)
-            all_n_sims_snp = [(i + 1) * exp_desc.inf.n_samples for i in xrange(exp_desc.inf.n_rounds)]
+            # SNPE
+            if isinstance(exp_desc.inf, ed.SNPE_MDN_Descriptor):
+                all_mmd_snp = get_mmd_snpe(exp_desc, seed)
+                all_n_sims_snp = [(i + 1) * exp_desc.inf.n_samples for i in xrange(exp_desc.inf.n_rounds)]
 
-        # SNL
-        if isinstance(exp_desc.inf, ed.SNL_Descriptor):
-            all_mmd_snl = get_mmd_snl(exp_desc, seed)
-            all_n_sims_snl = [(i + 1) * exp_desc.inf.n_samples for i in xrange(exp_desc.inf.n_rounds)]
+            # SNL
+            if isinstance(exp_desc.inf, ed.SNL_Descriptor):
+                all_mmd_snl = get_mmd_snl(exp_desc, seed)
+                all_n_sims_snl = [(i + 1) * exp_desc.inf.n_samples for i in xrange(exp_desc.inf.n_rounds)]
 
-    matplotlib.rc('text', usetex=True)
-    matplotlib.rc('font', size=16)
+        matplotlib.rc('text', usetex=True)
+        matplotlib.rc('font', size=16)
 
-    all_n_sims = np.concatenate([all_n_sims_ppr, all_n_sims_snp, all_n_sims_snl])
-    min_n_sims = np.min(all_n_sims)
-    max_n_sims = np.max(all_n_sims)
+        all_n_sims = np.concatenate([all_n_sims_ppr, all_n_sims_snp, all_n_sims_snl])
+        min_n_sims = np.min(all_n_sims)
+        max_n_sims = np.max(all_n_sims)
+        
+        all_mmd_snl = np.array(all_mmd_snl)
 
-    #ax.semilogx(all_n_sims_smc, np.sqrt(all_mmd_smc), 'v:', color='y', label='SMC ABC')
-    #ax.semilogx(all_n_sims_slk, np.sqrt(all_mmd_slk), 'D:', color='maroon', label='SL')
-    ax.semilogx(all_n_sims_ppr, np.sqrt(all_mmd_ppr), '>:', color='c', label='SNPE-A')
-    ax.semilogx(all_n_sims_snp, np.sqrt(all_mmd_snp), 'p:', color='g', label='SNPE-B')
-    #ax.semilogx(all_n_sims_nde, np.sqrt(all_mmd_nde), 's:', color='b', label='NL')
-    ax.semilogx(all_n_sims_snl, np.sqrt(all_mmd_snl), 'o:', color='r', label='SNL')
-    ax.set_xlabel('Number of simulations (log scale)')
-    ax.set_ylabel('Maximum Mean Discrepancy')
-    ax.set_xlim([min_n_sims * 10 ** (-0.2), max_n_sims * 10 ** 0.2])
-    ax.set_ylim([0.0, ax.get_ylim()[1]])
-    ax.legend(fontsize=14)
+        #print all_mmd_snl        
+        print np.array(all_mmd_snl).shape
 
+        #ax.semilogx(all_n_sims_smc, np.sqrt(all_mmd_smc), 'v:', color='y', label='SMC ABC')
+        #ax.semilogx(all_n_sims_slk, np.sqrt(all_mmd_slk), 'D:', color='maroon', label='SL')
+        ax.semilogx(all_n_sims_ppr, np.sqrt(all_mmd_ppr), '>:', color='c', label='SNPE-A')
+        ax.semilogx(all_n_sims_snp, np.sqrt(all_mmd_snp), 'p:', color='g', label='SNPE-B')
+        #ax.semilogx(all_n_sims_nde, np.sqrt(all_mmd_nde), 's:', color='b', label='NL')
+        ax.semilogx(all_n_sims_snl, np.sqrt(all_mmd_snl), 'o:', color='r', label='SNL')
+
+        # SNPE-C
+        try:
+            all_mmd_snpc = np.load('../lfi_experiments/snpec/results/gauss/seed'+str(seed)+'/all_mmds_N5000.npy')
+            all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_mmd_snpc.size)]
+            ax.semilogx(all_n_sims_snpc, np.sqrt(all_mmd_snpc), 'd-', color='k', label='SNPE-C')
+        except:
+            print ' could not load SNPE-C results, seed ' + str(seed)
+
+
+        ax.set_xlabel('Number of simulations (log scale)')
+        ax.set_ylabel('Maximum Mean Discrepancy')
+        ax.set_xlim([min_n_sims * 10 ** (-0.2), max_n_sims * 10 ** 0.2])
+        ax.set_ylim([0.0, ax.get_ylim()[1]])
+        if seed == seeds[0]:    
+            ax.legend(fontsize=14)
+
+
+        #samples = get_true_samples(seed)
+        #np.save('/home/mackelab/Desktop/Projects/Biophysicality/code/lfi_experiments/snpec/results/gauss/seed'+str(seed)+'/samples', samples)
 
     plt.show()
 
@@ -437,10 +460,8 @@ def main():
 
     parser = argparse.ArgumentParser(description='Plotting the results for the MMD experiment.')
     parser.add_argument('sim', type=str, choices=['gauss'], help='simulator')
-    parser.add_argument('seed', type=int, help='seed')
-    args = parser.parse_args()
 
-    plot_results(args.seed)
+    plot_results()
 
 
 if __name__ == '__main__':
