@@ -357,7 +357,7 @@ def get_mmd_snl(exp_desc, seed):
     return all_mmds
 
 
-def plot_results():
+def plot_results(run_name=''):
 
     """
     # SMC
@@ -429,18 +429,21 @@ def plot_results():
 
         # SNPE-C
         try:
-            all_mmd_snpc = np.load('../lfi_experiments/snpec/results/gauss__discrete_comb_n_null_99/seed'+str(seed)+'/all_mmds_N5000.npy')
+            all_mmd_snpc = np.load('../lfi_experiments/snpec/results/gauss'+run_name + '/seed'+str(seed)+'/all_mmds_N5000.npy')
             all_mmd_snpc = all_mmd_snpc[:len(all_mmd_snl)]
+            assert len(all_mmd_snpc) >= 40
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_mmd_snpc.size)]
-            all_mmds_snpc.append(all_mmd_snpc)
+            all_mmds_snpc.append(np.asarray(all_mmd_snpc))
+
             #ax.semilogx(all_n_sims_snpc, np.sqrt(all_mmd_snpc), 'd-', color='k', label='SNPE-C')
         except:
             print ' could not load SNPE-C results, seed ' + str(seed)
 
+    print([np.sqrt(all_mmd_snpc).shape for all_mmd_snpc in all_mmds_snpc])
 
     mean_mmd_snp = np.mean(np.vstack( np.sqrt(all_mmds_snp)), axis=0)
     mean_mmd_snl = np.mean(np.vstack( np.sqrt(all_mmds_snl)), axis=0)
-    mean_mmd_snpc = np.mean(np.vstack( np.sqrt(all_mmds_snpc)), axis=0)
+    mean_mmd_snpc = np.mean(np.vstack( [np.sqrt(all_mmd_snpc) for all_mmd_snpc in all_mmds_snpc]), axis=0)
     sd_mmd_snp = np.std(np.vstack( np.sqrt(all_mmds_snp)), axis=0)
     sd_mmd_snl = np.std(np.vstack( np.sqrt(all_mmds_snl)), axis=0)
     sd_mmd_snpc = np.std(np.vstack( np.sqrt(all_mmds_snpc)), axis=0)
@@ -486,8 +489,10 @@ def main():
 
     parser = argparse.ArgumentParser(description='Plotting the results for the MMD experiment.')
     parser.add_argument('sim', type=str, choices=['gauss'], help='simulator')
+    parser.add_argument('run', type=str, help='fitting options')
 
-    plot_results()
+    args = parser.parse_args()
+    plot_results(args.run)
 
 
 if __name__ == '__main__':

@@ -357,7 +357,7 @@ def get_mmd_snl(exp_desc, seed):
     return all_errs
 
 
-def plot_results():
+def plot_results(run_name=''):
 
     """
     # SMC
@@ -435,7 +435,7 @@ def plot_results():
 
         # SNPE-C
         try:
-            all_mmd_snpc = np.load('../lfi_experiments/snpec/results/gauss/seed'+str(seed)+'/all_mmds_N5000.npy')
+            all_mmd_snpc = np.load('../lfi_experiments/snpec/results/gauss_'+run_name + '/seed'+str(seed)+'/all_mmds_N5000.npy')
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_mmd_snpc.size)]
             ax.semilogx(all_n_sims_snpc, np.sqrt(all_mmd_snpc), 'd-', color='k', label='SNPE-C')
         except:
@@ -460,9 +460,10 @@ def main():
 
     parser = argparse.ArgumentParser(description='Plotting the results for the MMD experiment.')
     parser.add_argument('sim', type=str, choices=['gauss'], help='simulator')
+    parser.add_argument('run', type=str, help='fitting options')
 
-    plot_results()
-
+    args = parser.parse_args()
+    plot_results(args.run)
 
 if __name__ == '__main__':
     main()
