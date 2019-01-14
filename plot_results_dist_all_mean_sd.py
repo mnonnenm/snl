@@ -63,7 +63,7 @@ def get_dist(exp_desc, average, seed):
     return avg_dist
 
 
-def plot_results(sim_name, average):
+def plot_results(sim_name, run_name, average):
     """
     Plots all results for a given simulator.
     """
@@ -94,7 +94,7 @@ def plot_results(sim_name, average):
 
         # SNPE-C
         try:
-            all_dists_snpc.append(np.load('../lfi_experiments/snpec/results/'+sim_name+'/seed'+str(seed)+'/avg_dist.npy'))
+            all_dists_snpc.append(np.load('../lfi_experiments/snpec/results/'+sim_name+'_'+run_name+'/seed'+str(seed)+'/avg_dist.npy'))
         except:
             print ' could not load SNPE-C results, seed ' + str(seed)
 
@@ -141,10 +141,11 @@ def main():
 
     parser = argparse.ArgumentParser(description='Plotting distance vs time for the attention-focusing experiments.')
     parser.add_argument('sim', type=str, choices=['gauss', 'mg1', 'lv', 'hh'], help='simulator')
+    parser.add_argument('run', type=str, help='fitting options')
     parser.add_argument('-a', '--average', type=str, choices=['mean', 'median'], default='median', help='average type')
     args = parser.parse_args()
 
-    plot_results(args.sim, args.average)
+    plot_results(args.sim, args.run, args.average)
 
 
 if __name__ == '__main__':

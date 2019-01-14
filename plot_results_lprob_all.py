@@ -351,7 +351,7 @@ def get_sim(sim_name):
         return misc.get_simulator(sim_name)
 
 
-def plot_results(sim_name):
+def plot_results(sim_name, run_name=''):
     """
     Plots all results for a given simulator.
     """
@@ -431,7 +431,7 @@ def plot_results(sim_name):
 
         # SNPE-C
         try:
-            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
+            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+'_'+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_err_snpc.size)]
             ax.semilogx(all_n_sims_snpc, all_err_snpc, 'd-', color='k', label='SNPE-C')
         except:
@@ -447,7 +447,7 @@ def plot_results(sim_name):
 
         # SNPE-C
         try:
-            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
+            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+'_'+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_err_snpc.size)]
             ax.semilogx(all_n_sims_snpc, all_err_snpc, 'd-', color='k', label='SNPE-C')
         except:
@@ -461,10 +461,11 @@ def main():
 
     parser = argparse.ArgumentParser(description='Plotting the results for the log likelihood experiment.')
     parser.add_argument('sim', type=str, choices=['gauss', 'mg1', 'lv', 'hh'], help='simulator')
+    parser.add_argument('run', type=str, help='fitting options')
     #parser.add_argument('seed', type=int, help='seed')
     args = parser.parse_args()
 
-    plot_results(args.sim)
+    plot_results(args.sim, args.run)
 
 
 if __name__ == '__main__':
