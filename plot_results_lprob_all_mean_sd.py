@@ -380,9 +380,14 @@ def plot_results(sim_name, run_name=''):
     print 'sim: ' + str(sim_name)
     #print 'seeds: ' + str(seeds)
 
+    if run_name == '.':
+        run_name = ''
+
     fig, ax = plt.subplots(1, 1)
     seeds = np.arange(42, 52)
     all_errs_ppr, all_errs_snp, all_errs_snl, all_errs_snpc = [],[],[],[]
+
+    ct = 0
     for i in range(len(seeds)):
 
         seed = seeds[i]
@@ -395,6 +400,20 @@ def plot_results(sim_name, run_name=''):
 
         all_err_snl = None
         all_n_sims_snl = None
+
+
+        """
+        # SMC
+        exp_desc = ed.parse(util.io.load_txt('exps/{0}_smc.txt'.format(sim_name)))[0]
+        if i==1:
+            all_err_smc = np.nan*np.ones_like(all_err_smc)
+            all_n_sims_smc = all_n_sims_smc
+        else:
+            all_err_smc, all_n_sims_smc = get_err_smc(exp_desc, sim, seed) 
+            ct += 1
+        if i == 0:
+            ax.semilogx(all_n_sims_smc, all_err_smc, 'v:', color='y', label='SMC ABC')
+        """
 
         for exp_desc in ed.parse(util.io.load_txt('exps/{0}_seq.txt'.format(sim_name))):
 
@@ -429,7 +448,7 @@ def plot_results(sim_name, run_name=''):
 
         # SNPE-C
         try:
-            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+'_'+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
+            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_err_snpc.size)]
             all_errs_snpc.append(all_err_snpc)
         except:
@@ -438,22 +457,32 @@ def plot_results(sim_name, run_name=''):
 
     mean_err_snp = np.mean(np.vstack(all_errs_snp), axis=0)
     mean_err_snl = np.mean(np.vstack(all_errs_snl), axis=0)
-    mean_err_snpc = np.mean(np.vstack(all_errs_snpc), axis=0)
+    mean_err_snpc = np.nanmean(np.vstack(all_errs_snpc), axis=0)
     sd_err_snp = np.std(np.vstack(all_errs_snp), axis=0)
     sd_err_snl = np.std(np.vstack(all_errs_snl), axis=0)
-    sd_err_snpc = np.std(np.vstack(all_errs_snpc), axis=0)
+    sd_err_snpc = np.nanstd(np.vstack(all_errs_snpc), axis=0)
+
 
     all_errs_ppr = [np.pad(all_errs_ppr[i], 
                     pad_width=(0, np.max( [mean_err_snl.size +1 - len(all_errs_ppr[i]),0])),
                     mode='constant', constant_values=np.nan) for i in range(len(all_errs_ppr))]
+
+
     mean_err_ppr = np.nanmean(np.vstack(all_errs_ppr), axis=0)
+
     sd_err_ppr = np.nanstd(np.vstack(all_errs_ppr), axis=0)
 
 
     matplotlib.rc('text', usetex=True)
     matplotlib.rc('font', size=16)
 
-    all_n_sims_ppr = all_n_sims_snl if len(all_n_sims_ppr) < len(all_n_sims_snl) else all_n_sims_ppr
+    if sim_name=='lv':
+        all_n_sims_ppr = np.arange(1,12) * 1000
+    elif sim_name=='gauss':
+        all_n_sims_ppr = np.arange(1,42) * 1000
+    else:
+        all_n_sims_ppr = all_n_sims_snl if len(all_n_sims_ppr) < len(all_n_sims_snl) else all_n_sims_ppr
+    print('mean_err_ppr', mean_err_ppr)
 
     #ax.semilogx(all_n_sims_smc, all_err_smc, 'v:', color='y', label='SMC ABC')
     #ax.semilogx(all_n_sims_slk, all_err_slk, 'D:', color='maroon', label='SL')
@@ -461,18 +490,20 @@ def plot_results(sim_name, run_name=''):
     ax.semilogx(all_n_sims_snp, mean_err_snp, 'p:', color='g', label='SNPE-B')
     #ax.semilogx(all_n_sims_nde, all_err_nde, 's:', color='b', label='NL')
     ax.semilogx(all_n_sims_snl, mean_err_snl, 'o:', color='r', label='SNL')
-    ax.semilogx(all_n_sims_snpc, mean_err_snpc, 'd-', color='k', label='SNPE-C')
+    ax.semilogx(all_n_sims_snpc, mean_err_snpc, 'd-', color='k', label='APT')
     ax.fill_between(all_n_sims_ppr, mean_err_ppr-sd_err_ppr, mean_err_ppr+sd_err_ppr, color='c', alpha=0.3)
     ax.fill_between(all_n_sims_snp, mean_err_snp-sd_err_snp, mean_err_snp+sd_err_snp, color='g', alpha=0.3)
     ax.fill_between(all_n_sims_snl, mean_err_snl-sd_err_snl, mean_err_snl+sd_err_snl, color='r', alpha=0.3)
     ax.fill_between(all_n_sims_snpc, mean_err_snpc-sd_err_snpc, mean_err_snpc+sd_err_snpc, color='k', alpha=0.3)
     ax.set_xlabel('Number of simulations (log scale)')
+    #ax.set_ticks([100, 1000], fontsize=14)
     ax.set_ylabel('$-$log probability of true parameters')
     ax.set_xlim([min_n_sims * 10 ** (-0.2), max_n_sims * 10 ** 0.2])
-    ax.legend(fontsize=14)
-
+    #ax.legend(fontsize=14)
+    plt.xticks([1000, 10000], fontsize=16)
     plt.show()
 
+    print('ct', ct)
 
 def main():
 

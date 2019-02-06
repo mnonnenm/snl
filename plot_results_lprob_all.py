@@ -197,6 +197,7 @@ def get_err_smc(exp_desc, sim, seed):
         exp_dir = os.path.join(root, 'experiments/seed_'+str(seed), exp_desc.get_dir(), '0')
 
         if not os.path.exists(exp_dir):
+            print('exp_dir', exp_dir)
             raise misc.NonExistentExperiment(exp_desc)
 
         true_ps, _ = sim.get_ground_truth()
@@ -316,6 +317,8 @@ def get_err_snl(exp_desc, sim, seed):
 
     assert isinstance(exp_desc.inf, ed.SNL_Descriptor)
     res_file = os.path.join(root, 'results/seed_'+str(seed), exp_desc.get_dir(), 'err')
+    print('res_file', res_file)
+    print(os.path.exists(res_file + '.pkl'))
 
     if os.path.exists(res_file + '.pkl'):
         all_errs = util.io.load(res_file)
@@ -380,6 +383,9 @@ def plot_results(sim_name, run_name=''):
     print 'sim: ' + str(sim_name)
     #print 'seeds: ' + str(seeds)
 
+    if run_name == '.':
+        run_name = ''
+
     fig, ax = plt.subplots(1, 1)
     seeds = np.arange(42, 52)
     for i in range(len(seeds)):
@@ -395,7 +401,17 @@ def plot_results(sim_name, run_name=''):
         all_err_snl = None
         all_n_sims_snl = None
 
+        # SMC
+        exp_desc = ed.parse(util.io.load_txt('exps/{0}_smc.txt'.format(sim_name)))[0]
+        if i==1:
+            all_err_smc = np.nan*np.ones_like(all_err_smc)
+            all_n_sims_smc = all_n_sims_smc
+        else:
+            all_err_smc, all_n_sims_smc = get_err_smc(exp_desc, sim, seed)        
+
         for exp_desc in ed.parse(util.io.load_txt('exps/{0}_seq.txt'.format(sim_name))):
+
+
 
             # Post Prop
             if isinstance(exp_desc.inf, ed.PostProp_Descriptor):
@@ -422,7 +438,7 @@ def plot_results(sim_name, run_name=''):
         min_n_sims = np.min(all_n_sims)
         max_n_sims = np.max(all_n_sims)
 
-        #ax.semilogx(all_n_sims_smc, all_err_smc, 'v:', color='y', label='SMC ABC')
+        ax.semilogx(all_n_sims_smc, all_err_smc, 'v:', color='y', label='SMC ABC')
         #ax.semilogx(all_n_sims_slk, all_err_slk, 'D:', color='maroon', label='SL')
         ax.semilogx(all_n_sims_ppr, all_err_ppr, '>:', color='c', label='SNPE-A')
         ax.semilogx(all_n_sims_snp, all_err_snp, 'p:', color='g', label='SNPE-B')
@@ -431,7 +447,7 @@ def plot_results(sim_name, run_name=''):
 
         # SNPE-C
         try:
-            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+'_'+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
+            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_err_snpc.size)]
             ax.semilogx(all_n_sims_snpc, all_err_snpc, 'd-', color='k', label='SNPE-C')
         except:
@@ -447,7 +463,7 @@ def plot_results(sim_name, run_name=''):
 
         # SNPE-C
         try:
-            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+'_'+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
+            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_err_snpc.size)]
             ax.semilogx(all_n_sims_snpc, all_err_snpc, 'd-', color='k', label='SNPE-C')
         except:

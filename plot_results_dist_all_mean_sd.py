@@ -94,7 +94,7 @@ def plot_results(sim_name, run_name, average):
 
         # SNPE-C
         try:
-            all_dists_snpc.append(np.load('../lfi_experiments/snpec/results/'+sim_name+'_'+run_name+'/seed'+str(seed)+'/avg_dist.npy'))
+            all_dists_snpc.append(np.load('../lfi_experiments/snpec/results/'+sim_name+run_name+'/seed'+str(seed)+'/avg_dist.npy'))
         except:
             print ' could not load SNPE-C results, seed ' + str(seed)
 
@@ -120,7 +120,7 @@ def plot_results(sim_name, run_name, average):
     ax.plot(np.arange(len(all_dists_ppr[-1])) + 1, mean_dist_ppr, '>:', color='c', label='SNPE-A')
     ax.plot(np.arange(len(all_dists_snp[-1])) + 1, mean_dist_snp, 'p:', color='g', label='SNPE-B')
     ax.plot(np.arange(len(all_dists_snl[-1])) + 1, mean_dist_snl, 'o:', color='r', label='SNL')
-    ax.plot(np.arange(len(all_dists_snpc[-1])) + 1, mean_dist_snpc, 'd-', color='k', label='SNPE-C')
+    ax.plot(np.arange(len(all_dists_snpc[-1])) + 1, mean_dist_snpc, 'd-', color='k', label='APT')
 
     ax.fill_between(np.arange(len(all_dists_ppr[-1])) + 1, mean_dist_ppr-sd_dist_ppr, mean_dist_ppr+sd_dist_ppr, color='c', alpha=0.3)
     ax.fill_between(np.arange(len(all_dists_snp[-1])) + 1, mean_dist_snp-sd_dist_snp, mean_dist_snp+sd_dist_snp, color='g', alpha=0.3)

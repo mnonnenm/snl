@@ -382,9 +382,14 @@ def plot_results(run_name=''):
 
     #print 'seeds: ' + str(seeds)
 
+    if run_name == '.':
+        run_name = ''
+
     fig, ax = plt.subplots(1, 1)
     seeds = np.arange(42, 52)
     all_mmds_ppr, all_mmds_snp, all_mmds_snl, all_mmds_snpc = [],[],[],[]
+    ct = 0
+
     for i in range(len(seeds)):
 
         seed = seeds[i]
@@ -397,6 +402,19 @@ def plot_results(run_name=''):
 
         all_mmd_snl = None
         all_n_sims_snl = None
+
+        # SMC
+        exp_desc = ed.parse(util.io.load_txt('exps/gauss_smc.txt'))[0]
+        if i==1:
+            all_mmd_smc = np.nan*np.ones_like(all_mmd_smc)
+            all_n_sims_smc = all_n_sims_smc
+        else:
+            all_mmd_smc, all_n_sims_smc = get_mmd_smc(exp_desc, seed) 
+            #ct += 1
+        if i == 0 :
+            ax.semilogx(all_n_sims_smc, np.sqrt(all_mmd_smc), 'v:', color='y', linewidth=2.5, label='SMC ABC')
+        else:
+            ax.semilogx(all_n_sims_smc, np.sqrt(all_mmd_smc), 'v:', color='y', linewidth=2.5)
 
         for exp_desc in ed.parse(util.io.load_txt('exps/gauss_seq.txt')):
 
@@ -434,12 +452,16 @@ def plot_results(run_name=''):
             assert len(all_mmd_snpc) >= 40
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_mmd_snpc.size)]
             all_mmds_snpc.append(np.asarray(all_mmd_snpc))
+            ct += 1
 
             #ax.semilogx(all_n_sims_snpc, np.sqrt(all_mmd_snpc), 'd-', color='k', label='SNPE-C')
         except:
             print ' could not load SNPE-C results, seed ' + str(seed)
 
-    print([np.sqrt(all_mmd_snpc).shape for all_mmd_snpc in all_mmds_snpc])
+
+    print('ct', ct)
+
+    #print([np.sqrt(all_mmd_snpc).shape for all_mmd_snpc in all_mmds_snpc])
 
     mean_mmd_snp = np.mean(np.vstack( np.sqrt(all_mmds_snp)), axis=0)
     mean_mmd_snl = np.mean(np.vstack( np.sqrt(all_mmds_snl)), axis=0)
@@ -451,9 +473,10 @@ def plot_results(run_name=''):
     all_mmds_ppr = [np.pad(all_mmds_ppr[i], 
                     pad_width=(0, np.max( [mean_mmd_snl.size - len(all_mmds_ppr[i]),0])),
                     mode='constant', constant_values=np.nan) for i in range(len(all_mmds_ppr))]
-    mean_mmd_ppr = np.nanmean(np.vstack(all_mmds_ppr), axis=0)
-    sd_mmd_ppr = np.nanstd(np.vstack(all_mmds_ppr), axis=0)
+    mean_mmd_ppr = np.nanmean(np.sqrt(np.vstack(all_mmds_ppr)), axis=0)
+    sd_mmd_ppr = np.nanstd(np.sqrt(np.vstack(all_mmds_ppr)), axis=0)
 
+    #print(np.sqrt(np.vstack(all_mmds_ppr))[:, :10])
 
     matplotlib.rc('text', usetex=True)
     matplotlib.rc('font', size=16)
@@ -464,7 +487,7 @@ def plot_results(run_name=''):
     ax.semilogx(all_n_sims_snp, mean_mmd_snp, 'p:', color='g', label='SNPE-B')
     #ax.semilogx(all_n_sims_nde, all_mmd_nde, 's:', color='b', label='NL')
     ax.semilogx(all_n_sims_snl, mean_mmd_snl, 'o:', color='r', label='SNL')
-    ax.semilogx(all_n_sims_snpc, mean_mmd_snpc, 'd-', color='k', label='SNPE-C')
+    ax.semilogx(all_n_sims_snpc, mean_mmd_snpc, 'd-', color='k', label='APT')
 
     ax.fill_between(all_n_sims_ppr, mean_mmd_ppr-sd_mmd_ppr, mean_mmd_ppr+sd_mmd_ppr, color='c', alpha=0.3)
     ax.fill_between(all_n_sims_snp, mean_mmd_snp-sd_mmd_snp, mean_mmd_snp+sd_mmd_snp, color='g', alpha=0.3)

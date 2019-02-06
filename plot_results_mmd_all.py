@@ -268,13 +268,13 @@ def get_mmd_postprop(exp_desc, seed):
     assert isinstance(exp_desc.inf, ed.PostProp_Descriptor)
     res_file = os.path.join(root, 'results/seed_'+str(seed), exp_desc.get_dir(), 'mmd')
 
+    print(res_file)
     if os.path.exists(res_file + '.pkl'):
         all_prop_errs, post_err = util.io.load(res_file)
 
     else:
         exp_dir = os.path.join(root, 'experiments/seed_'+str(seed), exp_desc.get_dir(), '0')
 
-        print(exp_dir)
         if not os.path.exists(exp_dir):
             raise misc.NonExistentExperiment(exp_desc)
 
@@ -382,6 +382,9 @@ def plot_results(run_name=''):
 
     #print 'seeds: ' + str(seeds)
 
+    if run_name == '.':
+        run_name = ''
+
     fig, ax = plt.subplots(1, 1)
     seeds = np.arange(42, 52)
     for seed in seeds:
@@ -435,7 +438,7 @@ def plot_results(run_name=''):
 
         # SNPE-C
         try:
-            all_mmd_snpc = np.load('../lfi_experiments/snpec/results/gauss_'+run_name + '/seed'+str(seed)+'/all_mmds_N5000.npy')
+            all_mmd_snpc = np.load('../lfi_experiments/snpec/results/gauss'+run_name + '/seed'+str(seed)+'/all_mmds_N5000.npy')
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_mmd_snpc.size)]
             ax.semilogx(all_n_sims_snpc, np.sqrt(all_mmd_snpc), 'd-', color='k', label='SNPE-C')
         except:
