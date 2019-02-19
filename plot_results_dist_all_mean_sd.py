@@ -94,7 +94,7 @@ def plot_results(sim_name, run_name, average):
 
         # SNPE-C
         try:
-            all_dists_snpc.append(np.load('../lfi_experiments/snpec/results/'+sim_name+run_name+'/seed'+str(seed)+'/avg_dist.npy'))
+            all_dists_snpc.append(np.load('../lfi-experiments/snpec/notebooks_apt/results/'+sim_name+run_name+'/seed'+str(seed)+'/avg_dist.npy'))
         except:
             print ' could not load SNPE-C results, seed ' + str(seed)
 
