@@ -447,7 +447,7 @@ def plot_results(run_name=''):
 
         # SNPE-C
         try:
-            all_mmd_snpc = np.load('../lfi_experiments/snpec/results/gauss'+run_name + '/seed'+str(seed)+'/all_mmds_N5000.npy')
+            all_mmd_snpc = np.load('../lfi-experiments/snpec/notebooks_apt/results/gauss'+run_name + '/seed'+str(seed)+'/all_mmds_N5000.npy')
             all_mmd_snpc = all_mmd_snpc[:len(all_mmd_snl)]
             assert len(all_mmd_snpc) >= 40
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_mmd_snpc.size)]
@@ -487,7 +487,6 @@ def plot_results(run_name=''):
     sd_mmd_snl /= np.sqrt(np.count_nonzero(~np.isnan(all_mmds_snl), axis=0))
     sd_mmd_snpc /= np.sqrt(np.count_nonzero(~np.isnan(all_mmds_snpc), axis=0))
     sd_mmd_ppr /= np.sqrt(np.count_nonzero(~np.isnan(np.vstack(all_mmds_ppr)), axis=0))
-
 
     matplotlib.rc('text', usetex=True)
     matplotlib.rc('font', size=16)

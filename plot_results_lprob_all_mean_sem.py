@@ -448,7 +448,7 @@ def plot_results(sim_name, run_name=''):
 
         # SNPE-C
         try:
-            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
+            all_err_snpc = np.load('../lfi-experiments/snpec/notebooks_apt/results/'+sim_name+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_err_snpc.size)]
             all_errs_snpc.append(all_err_snpc)
         except:
@@ -472,17 +472,15 @@ def plot_results(sim_name, run_name=''):
 
     sd_err_ppr = np.nanstd(np.vstack(all_errs_ppr), axis=0)
 
-
-    print('nan-counts', np.count_nonzero(~np.isnan(all_errs_snp), axis=0))
-    print('nan-counts', np.count_nonzero(~np.isnan(all_errs_snl), axis=0))
-    print('nan-counts', np.count_nonzero(~np.isnan(all_errs_snpc), axis=0))
-    print('nan-counts', np.count_nonzero(~np.isnan(np.vstack(all_errs_ppr)), axis=0))
+    #print('nan-counts', np.count_nonzero(~np.isnan(all_errs_snp), axis=0))
+    #print('nan-counts', np.count_nonzero(~np.isnan(all_errs_snl), axis=0))
+    #print('nan-counts', np.count_nonzero(~np.isnan(all_errs_snpc), axis=0))
+    #print('nan-counts', np.count_nonzero(~np.isnan(np.vstack(all_errs_ppr)), axis=0))
 
     sd_err_snp /= np.sqrt(np.count_nonzero(~np.isnan(all_errs_snp), axis=0))
     sd_err_snl /= np.sqrt(np.count_nonzero(~np.isnan(all_errs_snl), axis=0))
     sd_err_snpc /= np.sqrt(np.count_nonzero(~np.isnan(all_errs_snpc), axis=0))
     sd_err_ppr /= np.sqrt(np.count_nonzero(~np.isnan(np.vstack(all_errs_ppr)), axis=0))
-
 
     matplotlib.rc('text', usetex=True)
     matplotlib.rc('font', size=16)
