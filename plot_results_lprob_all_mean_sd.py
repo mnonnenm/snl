@@ -448,7 +448,7 @@ def plot_results(sim_name, run_name=''):
 
         # SNPE-C
         try:
-            all_err_snpc = np.load('../lfi_experiments/snpec/results/'+sim_name+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
+            all_err_snpc = np.load('../lfi-experiments/snpec/notebooks_apt/results/'+sim_name+run_name+'/seed'+str(seed)+'/all_prop_errs_N5000.npy')
             all_n_sims_snpc = [(i + 1) * exp_desc.inf.n_samples for i in xrange(all_err_snpc.size)]
             all_errs_snpc.append(all_err_snpc)
         except:

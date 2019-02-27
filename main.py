@@ -6,6 +6,7 @@ import util.io
 import experiment_descriptor as ed
 import misc
 
+import os
 
 def parse_args():
     """
@@ -45,12 +46,16 @@ def run_experiment(args):
 
     from experiment_runner import ExperimentRunner
 
-    exp_descs = sum([ed.parse(util.io.load_txt(f)) for f in args.files], [])
-
-    for exp_desc in exp_descs:
-
+    exp_descs = sum([ed.parse(util.io.load_txt(f[:-2])) for f in args.files], [])
+    seed_descs = [int(float(f[-2:])) for f in args.files]
+    for exp_desc, seed in zip(exp_descs, seed_descs):
+        print '\n seed: '
+        print seed
+        exp_desc.get_dir = lambda: os.path.join(exp_desc.sim+str(seed), exp_desc.inf.get_dir())
+        print exp_desc.get_dir()
         try:
-            ExperimentRunner(exp_desc).run(trial=0, sample_gt=False, rng=np.random.RandomState(42))
+            er = ExperimentRunner(exp_desc)
+            er.run(trial=0, sample_gt=False, rng=np.random.RandomState(seed))
 
         except misc.AlreadyExistingExperiment:
             print 'EXPERIMENT ALREADY EXISTS'
